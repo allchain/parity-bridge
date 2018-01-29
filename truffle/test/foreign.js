@@ -84,6 +84,9 @@ contract('ForeignBridge', function(accounts) {
       return meta.balances.call(userAccount);
     }).then(function(result) {
       assert.equal(web3.toWei(0, "ether"), result, "Contract balance should not change yet");
+      return meta.deposit.estimateGas(userAccount, value, hash, { from: authorities[1] });
+    }).then(function(result) {
+      console.log("estimated gas cost of ForeignBridge.deposit =", result);
       return meta.deposit(userAccount, value, hash, { from: authorities[1] });
     }).then(function(result) {
       assert.equal(2, result.logs.length)
@@ -282,11 +285,16 @@ contract('ForeignBridge', function(accounts) {
     var requiredSignatures = 2;
     var authorities = [accounts[0], accounts[1]];
     var message = "0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
+    var signature;
     return ForeignBridge.new(requiredSignatures, authorities).then(function(instance) {
       meta = instance;
       return helpers.sign(authorities[0], message);
     }).then(function(result) {
-      return meta.submitSignature(result, message, { from: authorities[0] });
+      signature = result;
+      return meta.submitSignature.estimateGas(result, message, { from: authorities[0] });
+    }).then(function(result) {
+      console.log("estimated gas cost of ForeignBridge.submitSignature =", result);
+      return meta.submitSignature(signature, message, { from: authorities[0] });
     }).then(function(result) {
       assert.equal(0, result.logs.length, "No events should be created");
     })
