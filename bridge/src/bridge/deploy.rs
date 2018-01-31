@@ -51,7 +51,8 @@ impl<T: Transport + Clone> Future for Deploy<T> {
 						let test_data = self.app.foreign_bridge.constructor(
 							self.app.config.foreign.contract.bin.clone().0,
 							ethabi::util::pad_u32(self.app.config.authorities.required_signatures),
-							self.app.config.authorities.accounts.iter().map(|a| a.0.clone()).collect::<Vec<_>>()
+							self.app.config.authorities.accounts.iter().map(|a| a.0.clone()).collect::<Vec<_>>(),
+							ethabi::util::pad_u32(self.app.config.estimated_gas_cost_of_withdraw)
 						);
 
 						let main_tx_request = TransactionRequest {
